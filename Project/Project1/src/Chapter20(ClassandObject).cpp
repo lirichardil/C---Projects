@@ -350,7 +350,7 @@ void test105_copyconstruct2()
     8 如果类中重载了拷贝构造函数却没有定义默认的拷贝构造函数，编译器也会提供默认的拷贝构造函数。
 
 */
-s void test105_bullet5(CBoy b)
+void test105_bullet5(CBoy b)
 {
     b.getter();
 }
