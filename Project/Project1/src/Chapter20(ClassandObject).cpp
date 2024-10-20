@@ -199,6 +199,8 @@ public:
     }
     // 声明拷贝构造，105课会用到
     CBoy(const CBoy &b);
+    // 声明拷贝构造函数的重载，105课用到
+    CBoy(const CBoy &b, int ii);
 };
 
 /*
@@ -322,16 +324,33 @@ void test105_copyconstruct()
     // 方法2:
     // CBoy newboy = oldboy;
 }
+
 /*
     5 以值传递的方式调用函数时，如果实参为对象，会调用拷贝构造函数。
     6 （重要）函数以值的方式返回对象时，可能会调用拷贝构造函数（VS会调用，Linux不会，g++编译器做了优化）。
     7 拷贝构造函数可以重载，可以有默认参数。
         类名(......,const 类名& 对象名,......){......}
+        下面是一个有参数的拷贝构造函数
+*/
+CBoy::CBoy(const CBoy &b, int ii)
+{
+    m_name = "漂亮的" + b.m_name;
+    m_age = b.m_age - ii;
+    cout << "调用了CBoy::CBoy(const CBoy &b,int ii)的拷贝构造" << endl;
+}
+void test105_copyconstruct2()
+{
+    CBoy b1;
+    b1.setter("richard", 4);
+    CBoy b2(b1, 1);
+    b2.getter();
+}
+
+/*
     8 如果类中重载了拷贝构造函数却没有定义默认的拷贝构造函数，编译器也会提供默认的拷贝构造函数。
 
 */
-
-void test105_bullet5(CBoy b)
+s void test105_bullet5(CBoy b)
 {
     b.getter();
 }
@@ -343,6 +362,7 @@ void test105_main()
     b1.m_age = 23;
     b1.m_name = "David";
     test105_bullet5(b1); // 把g1传进去，会调用一次拷贝构造。 形参上的构造
+    test105_copyconstruct2();
 }
 
 int main()
