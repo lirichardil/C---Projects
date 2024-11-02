@@ -89,8 +89,10 @@ void test139_main()
 // 140、初始化列表(重新学习)
 /*
 构造函数的执行可以分成两个阶段：初始化阶段和计算阶段（初始化阶段先于计算阶段）。
+
 - 初始化阶段：全部的成员都会在初始化阶段初始化。
 - 计算阶段：一般是指用于执行构造函数体内的赋值操作。
+
 构造函数除了参数列表和函数体之外，还可以有初始化列表。
 
 
@@ -101,9 +103,15 @@ void test139_main()
 
 注意：
 1）如果成员已经在初始化列表中，则不应该在构造函数中再次赋值。
-2）初始化列表的括号中可以是具体的值，也可以是构造函数的形参名，还可以是表达式。
+2）初始化列表的括号中可以是具体的值，也可以是构造函数的形参名，还可以是表达式。（非常重要）
+
+
+
 3）初始化列表与赋值有本质的区别，如果成员是类，使用初始化列表调用的是成员类的拷贝构造函数，
 //而赋值则是先创建成员类的对象（将调用成员类的普通构造函数），然后再赋值。
+
+
+
 4）如果成员是类，初始化列表对性能略有提升。
 5）如果成员是常量和引用，必须使用初始列表，因为常量和引用只能在定义的时候初始化。
 6）如果成员是没有默认构造函数的类，则必须使用初始化列表。
@@ -112,32 +120,72 @@ void test139_main()
 9）构造函数的形参先于成员变量初始化。
 
 */
+//[注意3] 初始化列表和赋值有着根本的区别。如果赋值的成员是类，使用初始化列表调用的是成员类的
+// 拷贝构造函数，而赋值则是先创建成员类的对象（将调用成员类的普通构造函数），然后再赋值。
+
+class CGirl
+{
+public:
+    string m_name;
+    CGirl() // 没有参数的普通构造函数，默认构造函数。
+    {
+        m_name.clear();
+        cout << "调用CGirl()构造函数" << endl;
+    }
+    CGirl(string name)
+    {
+        m_name = name;
+        cout << "调用了    CGirl(string name) 构造函数。 \n";
+    }
+    CGirl(const CGirl &gg) // 默认拷贝构造函数
+    {
+        m_name = gg.m_name;
+        cout << "调用了CGirl(ocnst CGirl(const CGirl&gg)) 拷贝构造函数 \n";
+    }
+};
 
 class CBoy1
 {
 public:
     string m_name;
     int m_age;
-    CBoy1() : m_name("Boy1"), m_age(23) // 初始化列表可以是具体的值，也可以是形参名
+    CGirl m_girl;
 
+    // CBoy1() : m_name("Boy1"), m_age(23) // 初始化列表可以是具体的值，也可以是形参名
+
+    // {
+    //     cout << "调用了CBoy 普通构造函数" << endl;
+    //     // m_name = "Boy2"; //[注意1]如果在构造函数里面再次赋值，就会覆盖掉初始化列表的值
+    //     // m_age = 12;
+    // }
+
+    //[注意2] 初始化列表可以是形参名，还可以是表达式
+    CBoy1(string name, int age) : m_name("美丽的" + name), m_age(age) // 两个参数的构造函数
     {
-        cout << "调用了CBoy 普通构造函数" << endl;
+
+        cout << "调用了 CBoy1(string name, int age) 构造函数" << endl;
     }
-    CBoy1(string name, int age) : m_name(name), m_age(age - 1) // 两个参数的构造函数
+
+    //[注意3]
+    CBoy1(string name, int age, CGirl girl) : m_name(name), m_age(age)
     {
-        // m_name = name;
-        // m_age = age;
-        cout << "调用了CBoy1(name,age)构造函数" << endl;
+        // 用赋值的方法给CGril赋值
+        m_girl.m_name = girl.m_name;
     }
+
     void show()
     {
-        cout << "Name = " << this->m_name << "age = " << this->m_age << endl;
+        cout << "Name = " << this->m_name << "age = " << this->m_age << m_girl.m_name << endl;
     }
 };
 
 void test140_main()
 {
-    CBoy1 boy1;
+    // CBoy1 boy1; // 构造时候调用了没有参数的普通构造函数
+    // CBoy1 boy1("LILI", 19);
+    CGirl girl("Angie");
+    CBoy1 boy1("Li", 11, girl); //[注意3] 使用初始化列表时，先初始化构造函数的形参对象，然后再初始化类的成员
+
     boy1.show();
 }
 
