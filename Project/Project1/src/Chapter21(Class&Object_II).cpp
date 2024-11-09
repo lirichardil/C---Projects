@@ -204,7 +204,7 @@ void test140_main()
 
 4）非const对象可以调用const修饰的成员函数和非const修饰的成员函数。
 
-5）const对象只能调用const修饰的成员函数，不能调用非 cosnt 修饰的成员函数。
+5）const对象只能调用const修饰的成员函数，不能调用非 const 修饰的成员函数。
 
 
 这里出现了令人纠结的三个问题：
@@ -223,6 +223,8 @@ void test140_main()
 class CBoy2
 {
 public:
+    // string m_name;
+    //  如果希望在const 里面也能修改 m_name， 那就可以在前面加上 mutable 关键字
     mutable string m_name;
     int m_age;
     // 两个参数的普通构造函数
@@ -232,9 +234,139 @@ public:
         m_age = age;
         cout << "调用了CBoy2(const string &name, int age)" << endl;
     }
+    // 因为show 并不应该修改成员变量，所以这里可以添加const
+    void show1() const
+    {
+        m_name = "Richard"; // 会报错
+        cout << "show 1: name is " << m_name << " age is " << m_age << endl;
+    }
+    void show2()
+    {
+        cout << "调用非 常函数 show2()" << endl;
+    }
+
+    // 比较两个CBOY 类的年龄，用于下一集 test142.
+    const CBoy2 &compare_age_method(const CBoy2 &bb2) const;
 };
+
+void test141_main()
+{
+    CBoy2 boy2("gI", 14);
+    boy2.show1();
+
+    // 在创建对象时加入const 代表常对象，常对象里的内容不可以被改
+    const CBoy2 cst_boy2("RR", 11);
+    // 在创建cst_boy2 的时候其实调用了 CBoy2的构造函数，但是构造函数没有加const，
+    // 但是却没有问题。
+    //  常对象只能调用常函数
+    cst_boy2.show1();
+    // cst_boy2.show2(); //会报错，show2是非 常函数，cst_boy2是常对象
+}
+
+/*142 this 指针
+
+如果类的成员函数中涉及多个对象，在这种情况下需要使用this指针。
+this指针存放了对象的地址，它被作为隐藏参数传递给了成员函数，
+指向调用成员函数的对象（调用者对象）。
+每个成员函数（包括构造函数和析构函数）都有一个this指针，
+可以用它访问调用者对象的成员。（可以解决成员变量名与函数形参名相同的问题）
+*this可以表示对象。
+如果在成员函数的括号后面使用const，那么将不能通过this指针修改成员变量。
+
+*this可以表示对象。
+如果在成员函数的括号后面使用const，那么将不能通过this指针修改成员变量。
+
+
+
+*/
+// 传入 CBoy 的引用（节省空间）因为不需要修改，添加const
+// 函数的返回值也是CBoy&类型
+const CBoy2 &compare_Age(const CBoy2 &bb1, const CBoy2 &bb2)
+{
+    if (bb1.m_age > bb2.m_age)
+        return bb1;
+    return bb2;
+}
+
+// CBoy2下的成员函数在类外实现,因为是类内的函数，所以只需要将另一个函数传进来就可以了
+const CBoy2 &CBoy2::compare_age_method(const CBoy2 &bb2) const
+{
+
+    if (bb2.m_age < m_age)
+        return *this; // this 指向调用成员函数的成员
+    // 用this 指针解决，this指针存放了对象的地址，他被作为隐藏参数传给成员函数
+    else
+        return bb2;
+}
+void test142_main()
+{
+    // 例子，我们要比较两个CBoy 的年龄
+    CBoy2 boy1("Rich", 26);
+    CBoy2 boy2("David", 25);
+    const CBoy2 &boy3 = compare_Age(boy1, boy2);
+    // 上面的例子没有问题，但是风格太像C 了， 会被人说是《披着C++外衣的C程序员》
+    // 在C++中一切皆是对象，C++的应该将函数写在成员里
+    const CBoy2 &boy4 = boy1.compare_age_method(boy2);
+
+    // this 指针的妙用
+    // 加入你有五个对象要比较
+    CBoy2 boy5("a", 1), boy6("b", 2), boy7("c", 3), boy8("d", 4);
+    const CBoy2 &b = boy5.compare_age_method(boy6).compare_age_method(boy7).compare_age_method(boy8);
+    b.show1();
+}
+
+/* 143 静态成员
+类的静态成员包括静态成员变量和静态成员函数。
+
+1. 用静态成员可以变量实现多个对象之间的数据共享，比全局变量更安全性。
+    静态成员归对象所管
+
+用 static 关键字把类的成员变量声明为静态，表示它在程序中（不仅是对象）是共享的。
+静态成员变量不会在创建对象的时候初始化，必须在程序的全局区用代码清晰的初始化（用范围解析运算符 ::）。
+静态成员使用类名加范围解析运算符 :: 就可以访问，不需要创建对象。
+如果把类的成员声明为静态的，就可以把它与类的对象独立开来（静态成员不属于对象）。
+静态成员变量在程序中只有一份（生命周期与程序运行期相同，存放在静态存储区的），不论是否创建了类的对象，也不论创建了多少个类的对象。
+在静态成员函数中，只能访问静态成员，不能访问非静态成员。
+静态成员函数中没有this指针。
+在非静态成员函数中，可以访问静态成员。
+私有静态成员在类外无法访问。
+const静态成员变量可以在定义类的时候初始化。
+
+
+*/
+
+class CBoy3
+{
+public:
+    string m_name;
+
+    // int m_age;
+
+    CBoy3(const string &name, int age)
+    {
+        m_name = name;
+        m_age = age;
+    }
+    void showName()
+    {
+        cout << "Name is " << m_name << endl;
+    }
+    void showAge()
+    {
+        cout << "Age is " << m_age << endl;
+    }
+};
+
+void test143_main()
+{
+    CBoy3 b1("Richard", 23);
+    b1.showAge();
+    b1.showName();
+}
 
 int main()
 {
-    test140_main();
+    // test140_main();
+    // test141_main();
+    test142_main();
 }
