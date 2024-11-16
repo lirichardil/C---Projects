@@ -372,6 +372,12 @@ public:
     // {
     //     cout << "static show name" << m_name << endl;
     // }
+
+    // 供test144使用
+    void showName_WithoutThis()
+    {
+        cout << "该函数没有用到this指针" << endl;
+    }
 };
 
 // 全局区初始化static age 变量
@@ -411,32 +417,158 @@ CBoy3 里面有 1 个成员，4个成员函数（算上构造+析构）
 
 
 
-知识点2:
-C++类中有两种数据成员：nonstatic、static，
-三种函数成员：nonstatic、static、virtual。
+知识点2: 类的内存占用
+
+C++的类 中有两种数据成员：non-static、static，
+三种函数成员：non-static、static、virtual。
 
 - 对象内存的大小包括：<通过sizeof() 可以查看成员的大小
 1）所有非静态数据成员的大小；
 2）由内存对齐而填补的内存大小；
 3）为了支持virtual成员而产生的额外负担。
 
-- 静态成员变量属于类，不计算在对象的大小之内。
 
-- 成员函数是分开存储的，不论对象是否存在都占用存储空间，
-在内存中只有一个副本，也不计算在对象大小之内。
-    那个对象调用这个成员函数，就会通过隐藏的this 指针在
+知识点3： 类的成员 和 函数 在内存中存放的位置
+- 静态成员变量属于类，不计算在对象的大小之内。静态成员变量和全局变量保存的位置是一样的。
 
 
-	用空指针可以调用没有用到this指针的非静态成员函数。
-	对象的地址是第一个非静态成员变量的地址，如果类中没有非静态成员变量，编译器会隐含的增加一个1字节的占位成员。
+- 成员函数是分开存储的，存放在内存四区的代码段中。
+- 不论对象是否存在都占用存储空间，在内存中只有一个副本，也不计算在对象大小之内。
+- 他的地址应该和普通函数在同一片地区的。
+
+知识点4：
+
+- !醍醐灌顶！在C语言当中只要普通函数和普通变量，没有成员函数和成员变量的概念，
+而C++却把变量和函数通过对象的方式关联起来。 而其底层并不是什么新的技术，而是使用了this 指针
+在成员函数中操作非静态变量，一定要用this指针（this->)。 有些时候也可以不写，C++编译器会处理好这些细节
+
+因此，用空指针是可以调用没有用到this指针的非静态成员函数。
+
+知识点5：
+
+对象的地址是第一个非静态成员变量的地址，如果类中没有非静态成员变量，编译器会隐含的增加一个1字节的占位成员。
 
 
 
 */
 
+void test144_main()
+{
+    // 知识点4案例：使用空指针可以调用没有用到this指针得非静态成员函数
+    CBoy3 *pboy = nullptr;
+    // pboy->showName();             // 会报错，因为pboy是个空指针，且showName里面用到了this
+    pboy->showName_WithoutThis(); // 不会报错
+}
+
+/*145 友元 -提供访问类私有成员的另一种方法（除了访问共有函数）
+
+接下来我们将学习如何使用类，分为3个阶段
+1. 友元函数
+2. 运算符重载
+3. 自动类型转换和转换函数
+
+这节课我们学习友元
+
+如果要访问类的私有成员变量，调用类的公有成员函数是唯一的办法，而类的私有成员函数则无法访问。
+友元提供了另一访问类的私有成员的方案。友元有三种：
+- 友元全局函数。
+- 友元类。
+- 友元成员函数。
+
+
+1）友元全局函数
+ 在友元全局函数中，可以访问另一个类的所有成员。声明的方法：
+ 在类中定义 friend + 函数声明定义
+
+2）友元类
+在友元类所有成员函数中，都可以访问另一个类的所有成员。
+定义方法： friend + class + 类名
+友元类的注意事项：
+- 友元关系不能被继承。
+- 友元关系是单向的，不具备交换性。
+若类B是类A的友元，类A不一定是类B的友元。B是类A的友元，类C是B的友元，类C不一定是类A的友元，要看类中是否有相应的声明。
+
+
+3）友元成员函数
+在友元成员函数中，可以访问另一个类的所有成员。
+如果要把CGirl4的某成员函数声明为CBoy的友元，声明和定义的顺序如下：
+*/
+
+/*---友元成员函数- 声明CGirl中的fun2为CBoy4的友元成员函数*/
+
+class CBoy4; // 第一步： 声明前置
+// 第二步 将被定义的类提前
+
+class CGirl4
+{
+public:
+    void func1(const CBoy4 &cboy4); // 访问CBOY4的私有age成员
+
+    void func2(const CBoy4 &cboy4); // 访问CBOY4的私有age成员
+};
+
+/*------*/
+class CBoy4
+{
+    // 友元函数的声明方法。此时main函数将不再受私有的共有的约束
+    // friend void test145_main();
+    // friend class CGirl4;
+    friend CGirl4::func1(const CBoy4 &cboy4);
+    friend CGirl4::func2(const CBoy4 &cboy4);
+
+public:
+    string m_name; // 姓名
+    // 默认构造
+    CBoy4()
+    {
+        m_name = "Ri";
+        m_age = 87;
+    }
+
+    void showName()
+    {
+        cout << "姓名" << m_name << endl;
+    }
+
+private:
+    int m_age;
+    void showMyAge() const { cout << "年龄： " << m_age << endl; }
+};
+
+// 第三步：将需要被定义成友元函数的函数体体拿出来
+void CGirl4::func1(const CBoy4 &cboy4);
+void CGirl4::func2(const CBoy4 &cboy4);
+
+class CGirl4
+{
+public:
+    void func1(const CBoy4 &cboy4) // 访问CBOY4的私有age成员
+    {
+        cout << "My CBoy4 is " << cboy4.m_name << endl;
+        cout << "My CBoy4 age is " << cboy4.m_age << endl; // 在没有定义成友元类前，会报错
+    }
+    void func2(const CBoy4 &cboy4) // 访问CBOY4的私有age成员
+    {
+        cout << "func2（）My CBoy4 is " << cboy4.m_name << endl;
+        cout << "func2（）My CBoy4 age is " << cboy4.m_age << endl; // 在没有定义成友元类前，会报错
+    }
+};
+
+void test145_main()
+{
+    CBoy4 boy4;
+    boy4.showName();
+    boy4.showMyAge(); // 没有声明友元函数（friend)前会报错
+
+    CGirl4 girl4;
+    girl4.func1(boy4); // 正常
+}
+
 int main()
 {
     // test140_main();
     // test141_main();
-    test142_main();
+    // test142_main();
+    // test144_main();
+    test145_main();
 }
