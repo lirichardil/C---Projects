@@ -513,8 +513,8 @@ class CBoy4
     // 友元函数的声明方法。此时main函数将不再受私有的共有的约束
     // friend void test145_main();
     // friend class CGirl4;
-    friend CGirl4::func1(const CBoy4 &cboy4);
-    friend CGirl4::func2(const CBoy4 &cboy4);
+    friend void CGirl4::func1(const CBoy4 &cboy4);
+    friend void CGirl4::func2(const CBoy4 &cboy4);
 
 public:
     string m_name; // 姓名
