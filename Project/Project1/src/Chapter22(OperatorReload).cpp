@@ -94,6 +94,7 @@ public:
 int operator+(CGirl &g, int score) // 更合理的返回值应该是 int 类型
 {
     g.m_score = g.m_score + score; // m_score 是私有成员，需要添加到friend
+    return g.m_score;
 }
 
 // CGirl &operator-(CGirl &g, int score)
@@ -393,12 +394,12 @@ new[]和delete[]也可以重载。
 
 */
 
-void* operator new(size_t size) // 参数必须是size_t（unsigned long long），返回值必须是void*。
-{
+// void* operator new(size_t size) // 参数必须是size_t（unsigned long long），返回值必须是void*。
+// {
+  
+// }
 
-}
-
-void operator delete(void* ptr)   // 参数必须是void *，返回值必须是void。
+//void operator delete(void* ptr)   // 参数必须是void *，返回值必须是void。
 
 
 void test151_main()
