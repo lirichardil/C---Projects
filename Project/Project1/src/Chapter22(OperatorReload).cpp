@@ -394,19 +394,50 @@ new[]和delete[]也可以重载。
 
 */
 
-// void* operator new(size_t size) // 参数必须是size_t（unsigned long long），返回值必须是void*。
-// {
-  
-// }
+void* operator new(size_t size) // 参数必须是size_t（unsigned long long），返回值必须是void*。
+{
+    cout<<"调用了重载的new: " <<size <<"字节。\n";
+    void *ptr =malloc(size); //申请内存
+    cout << "申请到的内存的地址是： " << ptr << endl;
+    return ptr;
+}
 
-//void operator delete(void* ptr)   // 参数必须是void *，返回值必须是void。
+void operator delete(void* ptr)   // 参数必须是void *，返回值必须是void。
+{
+    cout<< "调用了重载的 delete. \n";
+    if (ptr == 0) return;
+    free(ptr);
+}
 
+class CGirl6// 用于测试
+{
+    public:
+    int m_bh;
+    int m_xw;
+    CGirl6(int bh, int xw)
+    {
+        m_bh = bh;
+        m_xw = xw;
+        cout << "调用了构造函数CGirl6()\n";
+    }
+    ~CGirl6()
+    {
+        cout<<"调用了CGirl6的析构函数\n";
+    }
+    
+};
 
 void test151_main()
 {
-    int*p1 = new int(3);
-    cout << "(地址)p1 = " << (void *)p1 << ", *p1 = " << *p1 << endl;
-    delete p1; 
+    // int*p1 = new int(3);
+    // cout << "(地址)p1 = " << (void *)p1 << ", *p1 = " << *p1 << endl;
+    // delete p1; 
+
+    //为类动态分配内存
+    CGirl6* p2 = new CGirl6(3,8);
+    cout << "p2的地址是：" << p2 << "编号： " << p2->m_bh << " xw: " << p2->m_xw << endl;
+
+    delete p2;
 }
 
 
@@ -417,4 +448,5 @@ int main()
     // test149_main();
     //test150_main();
     test151_main();
+    
 }
