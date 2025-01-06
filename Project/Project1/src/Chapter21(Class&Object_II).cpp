@@ -12,7 +12,7 @@ using namespace std;
 
 对象A   对象B
 m_ptr   m_prt
-  \       /
+  \       //
     0x00B3F
 
 这样会产生两个问题
@@ -22,6 +22,7 @@ m_ptr   m_prt
 
 在使用拷贝构造，如果不小心的话就会产生浅拷贝的bug
 演示：
+
 */
 
 class CBoy
@@ -511,8 +512,8 @@ public:
 class CBoy4
 {
     // 友元函数的声明方法。此时main函数将不再受私有的共有的约束
-    // friend void test145_main();
-    // friend class CGirl4;
+    friend void test145_main();
+    friend class CGirl4;
     friend void CGirl4::func1(const CBoy4 &cboy4);
     friend void CGirl4::func2(const CBoy4 &cboy4);
 
@@ -539,12 +540,13 @@ private:
 void CGirl4::func1(const CBoy4 &cboy4);
 void CGirl4::func2(const CBoy4 &cboy4);
 
+
 class CGirl4
 {
 public:
     void func1(const CBoy4 &cboy4) // 访问CBOY4的私有age成员
     {
-        cout << "My CBoy4 is " << cboy4.m_name << endl;
+        cout << "My CBoy4 is " << cboy4.m_name << endl; 
         cout << "My CBoy4 age is " << cboy4.m_age << endl; // 在没有定义成友元类前，会报错
     }
     void func2(const CBoy4 &cboy4) // 访问CBOY4的私有age成员

@@ -180,7 +180,8 @@ void test03_main()
 
 
 */
-void test04_main()
+
+void test04_1()
 {
     int val;
     int ii = 0;
@@ -188,12 +189,15 @@ void test04_main()
 
     while (true)
     {
-        cout << "请输入一个整数：";
+        cout << "请输入一个整数：\n";
         cin >> val;
         if (val == 0)
             break;
         else if (val < 1 || val > 100)
+        {
+            cout << " invalid input" << endl;
             continue;
+        }
         else
         {
             // 整数在1到100之间的有效数据。
@@ -204,7 +208,34 @@ void test04_main()
     cout << "有效数据的个数=" << ii << "，有效数据的总和=" << sum << endl;
 }
 
+void test04_2()
+{
+    
+    for (int i =1; i<101;i++)
+    {
+        if (i % 5 == 0)
+        {
+            cout << i << "\n" << endl;
+        }
+        
+    }
+
+}
+void test04_main()
+{
+    //test04_1();
+    test04_2();
+}
+
 /*五、玩转字符*/
+
+
+
+
+
+
+
+
 
 /*六、计算字符串的长度*/
 /*七 、显示字符串中的字符*/
@@ -219,5 +250,6 @@ int main()
     // test02_main();
     // test03_main();
     test04_main();
+
     return 0;
 }
